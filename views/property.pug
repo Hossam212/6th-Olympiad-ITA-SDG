@@ -1,0 +1,104 @@
+extends base
+include _reviewCard
+
+block append head
+  script(src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js")
+  link(
+    href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css",
+    rel="stylesheet"
+  )
+mixin overviewBox(label, text, icon)
+  .overview-box__detail
+    svg.overview-box__icon
+      use(xlink:href=`/img/icons.svg#icon-${icon}`)
+    span.overview-box__label= label
+    span.overview-box__text= text
+
+block content
+  section.section-header
+    .header__hero
+      .header__hero-overlay &nbsp;
+      img.header__hero-img(
+        src=`/img/tours/${property.imageCover}`,
+        alt=`${property.name}`
+      )
+
+    .heading-box
+      h1.heading-primary
+        span= `${property.name} property`
+      .heading-box__group
+        .heading-box__detail
+          svg.heading-box__icon
+            use(xlink:href="/img/icons.svg#icon-clock")
+          span.heading-box__text= `${property.duration} days`
+        .heading-box__detail
+          svg.heading-box__icon
+            use(xlink:href="/img/icons.svg#icon-map-pin")
+          span.heading-box__text= property.location.description
+
+  section.section-description
+    .overview-box
+      div
+        .overview-box__group
+          h2.heading-secondary.ma-bt-lg Quick facts
+
+          - const date = property.createdAt.toLocaleString("en-us", { month: "long", year: "numeric" });
+          +overviewBox('Next date', date, 'calendar')
+          +overviewBox('Participants', `${property.maxGroupSize} people`, 'user')
+          +overviewBox('Rating', `${property.ratingsAverage} / 5`, 'star')
+
+    .description-box
+      h2.heading-secondary.ma-bt-lg= `About ${property.name} property`
+      - const parapraphs = property.description.split("\n");
+      each p in parapraphs
+        p.description__text= p
+
+  section.section-pictures
+    each img, i in property.images
+      .picture-box
+        img.picture-box__img(
+          src=`/img/tours/${img}`,
+          alt=`property ${i + 1}`,
+          class=`picture-box__img--${i + 1}`
+        )
+
+  section.section-map
+    #map(data-location=`${JSON.stringify(property.location)}`)
+
+  section.section-reviews
+    .reviews
+      each review in property.reviews
+        +reviewCard(review)
+    form(action="/submitReview", method="POST")
+      .form__group
+        label.form__label(for="review", style="font-size: 30px") Submit a Review:
+        input.form__input(type="text", name="review")
+        label.form__label(for="rating", style="font-size: 30px") Rating(1 to 5):
+        input.form__input(type="text", name="rating")
+      .form__group
+        button.btn.btn--green.btn--small(
+          type="submit",
+          style="margin-bottom: 10px"
+        ) Submit review
+  section.section-cta
+    .cta
+      .cta__img.cta__img--logo
+        img(src="/img/logo-white.png", alt="Natours logo")
+      img.cta__img.cta__img--1(
+        src=`/img/tours/${property.images[1]}`,
+        alt="property picture"
+      )
+      img.cta__img.cta__img--2(
+        src=`/img/tours/${property.images[2]}`,
+        alt="property picture"
+      )
+      .cta__content
+        h2.heading-secondary What are you waiting for?
+        p.cta__text= `${property.duration} days. 1 adventure. Infinite memories. Make it yours today!`
+
+        if user
+          button#book-property.btn.btn--green.span-all-rows(
+            data-property-id=`${property.id}`
+          ) Book property now!
+        else
+          a.btn.btn--green.span-all-rows(href="/login") Log in to book property

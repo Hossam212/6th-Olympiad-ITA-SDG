@@ -1,0 +1,14 @@
+extends base
+
+block append head
+  script(src="https://cdn.jsdelivr.net/npm/chart.js")
+  script(src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js")
+  link(
+    href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css",
+    rel="stylesheet"
+  )
+
+block content
+  <br><br><br><br><br><br><br>
+  section.section-map
+    #map
